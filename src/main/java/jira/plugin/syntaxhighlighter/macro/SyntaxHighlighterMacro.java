@@ -16,6 +16,7 @@ public class SyntaxHighlighterMacro extends BaseMacro {
 	private static final String TITLE = "title";
 	private static final String FIRST_LINE = "first-line";
 	private static final String HIDE_LINENUM = "hide-linenum";
+	private static final String SHOW_LINENUM = "show-linenum";
 	/**
 	 * Character ({@value}) used to separate ranges of line numbers.
 	 */
@@ -93,16 +94,22 @@ public class SyntaxHighlighterMacro extends BaseMacro {
 
 	@SuppressWarnings("rawtypes")
 	public String getLineNum(Map parameters) {
-		if ( parameters.containsValue(HIDE_LINENUM) || 
-				( parameters.containsKey(HIDE_LINENUM) && parameters.get(HIDE_LINENUM).equals("true") ) ||
-				( parameters.containsKey(HIDE_LINENUM) && parameters.get(HIDE_LINENUM).equals("yes") ) ){
+        if (paramIsTrue(parameters, HIDE_LINENUM)){
 			return "gutter : false; ";
-		} else {
+        } else if (paramIsTrue(parameters, SHOW_LINENUM)){
 			return "";
+		} else {
+			return "gutter : false; ";
 		}
-	}	
-	
-	/**
+	}
+
+    private boolean paramIsTrue(Map parameters, String hideLinenum) {
+        return parameters.containsValue(hideLinenum) ||
+                (parameters.containsKey(hideLinenum) && parameters.get(hideLinenum).equals("true")) ||
+                (parameters.containsKey(hideLinenum) && parameters.get(hideLinenum).equals("yes"));
+    }
+
+    /**
 	 * Scans a given string of line numbers for occurrences of a range (eg- 1-3).
 	 * Any ranges found will be expanded to sequences.
 	 * 
@@ -177,13 +184,14 @@ public class SyntaxHighlighterMacro extends BaseMacro {
 	@SuppressWarnings("rawtypes")
 	public String getBrush(Map parameters) {
 		
-		String tmpMode = "plain";
+		String tmpMode = "scala";
 		
 		if (parameters.containsKey("0")) {
 			String tmpParam = (String) parameters.get("0");
 			if ( 
-					"erlang".equals(tmpParam) || 
-					"diff".equals(tmpParam) || 					
+					"plain".equals(tmpParam) ||
+					"erlang".equals(tmpParam) ||
+					"diff".equals(tmpParam) ||
 					"sql".equals(tmpParam) || 
 					"css".equals(tmpParam) || 
 					"php".equals(tmpParam) || 
@@ -261,6 +269,4 @@ public class SyntaxHighlighterMacro extends BaseMacro {
 		
 		return "brush: " + tmpMode + "; ";
 	}
-
-
 }
